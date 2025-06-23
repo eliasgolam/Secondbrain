@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import AnimatedListeningCircle from '../components/AnimatedListeningCircle';
-import MicButton from '../components/MicButton';
-import BottomNav from '../components/BottomNav';
+
 
 const HomeScreen = () => {
   return (
@@ -15,7 +14,6 @@ const HomeScreen = () => {
         <AnimatedListeningCircle />
       </View>
 
-      <BottomNav />
     </SafeAreaView>
   );
 };

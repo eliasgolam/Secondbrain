@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import LottieView from 'lottie-react-native';
+import { Dimensions, TouchableOpacity, Platform } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -9,51 +8,55 @@ const AnimatedListeningCircle = () => {
   const [isListening, setIsListening] = useState(false);
 
   const handlePress = () => {
-    if (isListening) {
-      animationRef.current?.pause();
-      setIsListening(false);
-      // TODO: Sprachaufnahme stoppen
+    if (Platform.OS === 'web') {
+      if (isListening) {
+        animationRef.current?.stop();
+      } else {
+        animationRef.current?.play();
+      }
     } else {
-      animationRef.current?.play();
-      setIsListening(true);
-      // TODO: Sprachaufnahme starten
+      if (isListening) {
+        animationRef.current?.pause();
+      } else {
+        animationRef.current?.play();
+      }
     }
+    setIsListening(!isListening);
   };
 
-  return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.9}>
-      <View style={styles.container}>
+  const commonStyle = {
+    width: width * 0.8,
+    height: width * 0.8,
+    alignSelf: 'center',
+  };
+
+  if (Platform.OS === 'web') {
+    const LottieView = require('lottie-react').default;
+    return (
+      <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
+        <LottieView
+          lottieRef={animationRef}
+          animationData={require('../assets/mic.json')}
+          loop
+          autoplay={false}
+          style={commonStyle}
+        />
+      </TouchableOpacity>
+    );
+  } else {
+    const LottieView = require('lottie-react-native').default;
+    return (
+      <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
         <LottieView
           ref={animationRef}
           source={require('../assets/mic.json')}
           loop
           autoPlay={false}
-          style={styles.animation}
+          style={commonStyle}
         />
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  }
 };
-
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: width * 0.7,
-    height: width * 0.7,
-    borderRadius: (width * 0.7) / 2,
-    backgroundColor: '#F0F0F0',
-    padding: 10,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  animation: {
-    width: '100%',
-    height: '100%',
-  },
-});
 
 export default AnimatedListeningCircle;
