@@ -2,95 +2,84 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
-  Platform,
-  StatusBar
+  StyleSheet
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AppContainer from '../components/AppContainer';
+import theme from '../theme';
 
 const MaterialScreen = () => {
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Materialverwaltung</Text>
+    <AppContainer>
+      <Text style={styles.title}>Materialverwaltung</Text>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('MaterialForm')}
-        >
-          <MaterialCommunityIcons name="plus-box" size={20} color="#fff" />
-          <Text style={styles.buttonText}>Material erfassen</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate('MaterialForm')}
+      >
+        <MaterialCommunityIcons name="plus-box" size={20} color={theme.colors.white} />
+        <Text style={styles.buttonText}>Material erfassen</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('MaterialList')}
-        >
-          <MaterialCommunityIcons name="clipboard-list" size={20} color="#fff" />
-          <Text style={styles.buttonText}>Materialliste</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate('MaterialList')}
+      >
+        <MaterialCommunityIcons name="clipboard-list" size={20} color={theme.colors.white} />
+        <Text style={styles.buttonText}>Materialliste</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('MaterialScanner')}
-        >
-          <MaterialCommunityIcons name="qrcode-scan" size={20} color="#fff" />
-          <Text style={styles.buttonText}>Material scannen</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate('MaterialScanner')}
+      >
+        <MaterialCommunityIcons name="qrcode-scan" size={20} color={theme.colors.white} />
+        <Text style={styles.buttonText}>Material scannen</Text>
+      </TouchableOpacity>
 
-        <View style={styles.hinweisContainer}>
-          <Text style={styles.hinweisText}>⚠️ Erinnerung: Handschuhe fehlen</Text>
-          <Text style={styles.hinweisText}>🟥 Warnung: Farbeimer leer</Text>
-        </View>
+      <View style={styles.hinweisContainer}>
+        <Text style={styles.hinweisText}>⚠️ Erinnerung: Handschuhe fehlen</Text>
+        <Text style={styles.hinweisText}>🟥 Warnung: Farbeimer leer</Text>
       </View>
-    </SafeAreaView>
+    </AppContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
-  container: {
-    flex: 1,
-    padding: 20,
-  },
   title: {
-    fontSize: 22,
+    fontSize: theme.typography.fontSize.title,
     fontWeight: 'bold',
-    marginBottom: 24,
-    textAlign: 'center'
+    marginBottom: theme.spacing.lg,
+    textAlign: 'center',
+    color: theme.colors.text
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#007AFF',
-    padding: 14,
-    borderRadius: 10,
-    marginBottom: 16
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    marginBottom: theme.spacing.md
   },
   buttonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontWeight: '600',
-    fontSize: 16,
-    marginLeft: 10
+    fontSize: theme.typography.fontSize.normal,
+    marginLeft: theme.spacing.sm
   },
   hinweisContainer: {
     marginTop: 'auto',
     backgroundColor: '#f5f5f5',
-    padding: 12,
-    borderRadius: 8
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md
   },
   hinweisText: {
     color: '#d00',
-    fontSize: 14,
+    fontSize: theme.typography.fontSize.small,
     marginBottom: 4
   }
 });

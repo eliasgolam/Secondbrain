@@ -4,12 +4,11 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
-  ScrollView,
-  Platform,
-  StatusBar
+  ScrollView
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AppContainer from '../components/AppContainer';
+import theme from '../theme';
 
 const initialRechnungen = [
   {
@@ -30,17 +29,16 @@ const RechnungenScreen = () => {
   const [rechnungen, setRechnungen] = useState(initialRechnungen);
 
   const handlePdfOpen = (rechnung) => {
-    // Platzhalter: Hier später PDF-Vorschau oder Download öffnen
     alert(`PDF für ${rechnung.name} öffnen`);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <AppContainer>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Rechnungen</Text>
 
         <TouchableOpacity style={styles.button}>
-          <MaterialCommunityIcons name="file-plus" size={20} color="#fff" />
+          <MaterialCommunityIcons name="file-plus" size={20} color={theme.colors.white} />
           <Text style={styles.buttonText}>Neue Rechnung erstellen</Text>
         </TouchableOpacity>
 
@@ -53,62 +51,60 @@ const RechnungenScreen = () => {
               <Text style={styles.date}>{item.datum}</Text>
             </View>
             <TouchableOpacity onPress={() => handlePdfOpen(item)}>
-              <MaterialCommunityIcons name="file-pdf-box" size={26} color="#007AFF" />
+              <MaterialCommunityIcons name="file-pdf-box" size={26} color={theme.colors.primary} />
             </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </AppContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
-  },
   container: {
-    padding: 20
+    padding: theme.spacing.md
   },
   title: {
-    fontSize: 22,
+    fontSize: theme.typography.fontSize.title,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20
+    marginBottom: theme.spacing.lg,
+    color: theme.colors.text
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#007AFF',
-    padding: 14,
-    borderRadius: 10,
-    marginBottom: 24
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    marginBottom: theme.spacing.lg
   },
   buttonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontWeight: '600',
-    fontSize: 16,
-    marginLeft: 10
+    fontSize: theme.typography.fontSize.normal,
+    marginLeft: theme.spacing.sm
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: theme.typography.fontSize.large,
     fontWeight: 'bold',
-    marginBottom: 10
+    marginBottom: theme.spacing.sm,
+    color: theme.colors.text
   },
   rechnungItem: {
     flexDirection: 'row',
     alignItems: 'center',
     borderTopWidth: 1,
     borderColor: '#eee',
-    paddingVertical: 12
+    paddingVertical: theme.spacing.sm
   },
   name: {
-    fontSize: 15,
-    fontWeight: '500'
+    fontSize: theme.typography.fontSize.normal,
+    fontWeight: '500',
+    color: theme.colors.text
   },
   date: {
-    fontSize: 13,
+    fontSize: theme.typography.fontSize.small,
     color: '#666'
   }
 });

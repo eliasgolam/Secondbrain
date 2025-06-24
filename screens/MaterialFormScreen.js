@@ -5,13 +5,12 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
-  Platform,
-  StatusBar,
   Alert
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
+import AppContainer from '../components/AppContainer';
+import theme from '../theme';
 
 const MaterialFormScreen = ({ navigation }) => {
   const [bezeichnung, setBezeichnung] = useState('');
@@ -32,125 +31,112 @@ const MaterialFormScreen = ({ navigation }) => {
       Alert.alert('Fehler', 'Bezeichnung ist erforderlich.');
       return;
     }
-    // ⬇ Hier könntest du die Daten später speichern oder weitergeben
     Alert.alert('Gespeichert', 'Material wurde gespeichert.');
     navigation.goBack();
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Neues Material erfassen</Text>
+    <AppContainer>
+      <Text style={styles.title}>Neues Material erfassen</Text>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>Bezeichnung:</Text>
-          <TextInput
-            style={styles.input}
-            value={bezeichnung}
-            onChangeText={setBezeichnung}
-            placeholder="z. B. Silikon"
-          />
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>Beschreibung:</Text>
-          <TextInput
-            style={styles.input}
-            value={beschreibung}
-            onChangeText={setBeschreibung}
-            placeholder="Optional"
-          />
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>Menge pro Scan:</Text>
-          <TextInput
-            style={styles.input}
-            value={menge}
-            onChangeText={setMenge}
-            keyboardType="numeric"
-          />
-        </View>
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => setQrVisible(true)}
-        >
-          <MaterialCommunityIcons name="qrcode" size={20} color="#fff" />
-          <Text style={styles.buttonText}>QR-Code erstellen</Text>
-        </TouchableOpacity>
-
-        {qrVisible && (
-          <View style={styles.qrContainer}>
-            <QRCode value={generateQRCodeValue()} size={200} />
-          </View>
-        )}
-
-        <TouchableOpacity style={styles.saveButton} onPress={handleSpeichern}>
-          <Text style={styles.saveButtonText}>✅ Speichern</Text>
-        </TouchableOpacity>
+      <View style={styles.field}>
+        <Text style={styles.label}>Bezeichnung:</Text>
+        <TextInput
+          style={styles.input}
+          value={bezeichnung}
+          onChangeText={setBezeichnung}
+          placeholder="z. B. Silikon"
+        />
       </View>
-    </SafeAreaView>
+
+      <View style={styles.field}>
+        <Text style={styles.label}>Beschreibung:</Text>
+        <TextInput
+          style={styles.input}
+          value={beschreibung}
+          onChangeText={setBeschreibung}
+          placeholder="Optional"
+        />
+      </View>
+
+      <View style={styles.field}>
+        <Text style={styles.label}>Menge pro Scan:</Text>
+        <TextInput
+          style={styles.input}
+          value={menge}
+          onChangeText={setMenge}
+          keyboardType="numeric"
+        />
+      </View>
+
+      <TouchableOpacity style={styles.qrButton} onPress={() => setQrVisible(true)}>
+        <MaterialCommunityIcons name="qrcode" size={20} color={theme.colors.white} />
+        <Text style={styles.qrButtonText}>QR-Code erstellen</Text>
+      </TouchableOpacity>
+
+      {qrVisible && (
+        <View style={styles.qrContainer}>
+          <QRCode value={generateQRCodeValue()} size={200} />
+        </View>
+      )}
+
+      <TouchableOpacity style={styles.saveButton} onPress={handleSpeichern}>
+        <Text style={styles.saveButtonText}>✅ Speichern</Text>
+      </TouchableOpacity>
+    </AppContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
-  },
-  container: {
-    flex: 1,
-    padding: 20
-  },
   title: {
-    fontSize: 22,
+    fontSize: theme.typography.fontSize.title,
     fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center'
+    marginBottom: theme.spacing.lg,
+    textAlign: 'center',
+    color: theme.colors.text
   },
   field: {
-    marginBottom: 16
+    marginBottom: theme.spacing.md
   },
   label: {
     fontWeight: '600',
-    marginBottom: 4
+    marginBottom: theme.spacing.xs,
+    color: theme.colors.text
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 10
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.sm
   },
-  button: {
+  qrButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#007AFF',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 12
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md,
+    marginTop: theme.spacing.sm
   },
-  buttonText: {
-    color: '#fff',
+  qrButtonText: {
+    color: theme.colors.white,
     fontWeight: '600',
-    marginLeft: 10
+    marginLeft: theme.spacing.sm
   },
   qrContainer: {
     alignItems: 'center',
-    marginVertical: 20
+    marginVertical: theme.spacing.lg
   },
   saveButton: {
     backgroundColor: '#28a745',
-    padding: 14,
-    borderRadius: 10,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
     alignItems: 'center',
-    marginTop: 10
+    marginTop: theme.spacing.md
   },
   saveButtonText: {
-    color: '#fff',
+    color: theme.colors.white,
     fontWeight: 'bold',
-    fontSize: 16
+    fontSize: theme.typography.fontSize.large
   }
 });
 

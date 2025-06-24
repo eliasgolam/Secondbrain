@@ -6,6 +6,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import theme from './theme';
+
 // Haupt-Tabs
 import HomeScreen from './screens/HomeScreen';
 import KundendossierScreen from './screens/KundendossierScreen';
@@ -63,7 +65,7 @@ export default function App() {
               }
               return <MaterialCommunityIcons name={iconName} size={22} color={color} />;
             },
-            tabBarActiveTintColor: '#007AFF',
+            tabBarActiveTintColor: theme.colors.primary,
             tabBarInactiveTintColor: '#888',
             tabBarLabelStyle: {
               fontSize: 11,
@@ -73,7 +75,7 @@ export default function App() {
               height: 70,
               paddingBottom: Platform.OS === 'ios' ? 20 : 8,
               paddingTop: 4,
-              backgroundColor: '#fff',
+              backgroundColor: theme.colors.white,
               borderTopWidth: 0.5,
               borderColor: '#ccc',
             },

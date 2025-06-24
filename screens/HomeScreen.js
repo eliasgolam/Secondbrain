@@ -1,36 +1,45 @@
+// screens/HomeScreen.js
+
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
+import AppContainer from '../components/AppContainer';
 import AnimatedListeningCircle from '../components/AnimatedListeningCircle';
+import theme from '../theme';
 
-
-const HomeScreen = () => {
+export default function HomeScreen() {
   return (
-    <SafeAreaView style={styles.container}>
+    <AppContainer>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Secondbrain</Text>
+        <Image
+          source={require('../assets/logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.title}>SecondBrain</Text>
       </View>
 
       <View style={styles.circleContainer}>
         <AnimatedListeningCircle />
       </View>
-
-    </SafeAreaView>
+    </AppContainer>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'space-between',
-  },
   headerContainer: {
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
   },
-  headerText: {
-    fontSize: 28,
+  logo: {
+    width: 400, // 250% größer als 160
+    height: 150,
+  },
+  title: {
+    fontSize: theme.typography.fontSize.title,
     fontWeight: 'bold',
+    color: theme.colors.text,
+    marginTop: theme.spacing.sm,
   },
   circleContainer: {
     flex: 1,
@@ -38,5 +47,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
-export default HomeScreen;

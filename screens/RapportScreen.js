@@ -7,13 +7,14 @@ import {
   Modal,
   FlatList,
   TextInput,
-  SafeAreaView,
   Alert,
   ScrollView
 } from 'react-native';
 import * as Speech from 'expo-speech';
 import { WebView } from 'react-native-webview';
 import AnimatedListeningCircle from '../components/AnimatedListeningCircle';
+import AppContainer from '../components/AppContainer';
+import theme from '../theme';
 
 const RapportScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -84,8 +85,7 @@ const RapportScreen = () => {
 
   const generateHtmlForm = () => {
     const today = new Date().toLocaleDateString('de-DE');
-    let html = `
-      <html><head><style>
+    let html = `<html><head><style>
       body { font-family: Arial; padding: 20px; }
       h1 { text-align: center; }
       .block { margin-bottom: 20px; }
@@ -106,7 +106,7 @@ const RapportScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <AppContainer>
       <Text style={styles.title}>Rapporte</Text>
 
       <View style={styles.buttonGroup}>
@@ -137,68 +137,103 @@ const RapportScreen = () => {
       )}
 
       <Modal visible={modalVisible} animationType="slide">
-        <SafeAreaView style={styles.modalContent}>
+        <AppContainer>
           <Text style={styles.modalTitle}>Rapport per Spracheingabe</Text>
           <TouchableOpacity onPress={sprecheFragen}>
             <AnimatedListeningCircle />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.createButton} onPress={handleOpenPreview}>
-            <Text style={styles.createButtonText}>Rapport erfassen</Text>
+          <TouchableOpacity style={styles.primaryButton} onPress={handleOpenPreview}>
+            <Text style={styles.primaryButtonText}>Rapport erfassen</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleCloseModal}>
             <Text style={styles.close}>Abbrechen</Text>
           </TouchableOpacity>
-        </SafeAreaView>
+        </AppContainer>
       </Modal>
 
       <Modal visible={previewVisible} animationType="fade">
-        <SafeAreaView style={{ flex: 1 }}>
+        <AppContainer>
           <WebView
             originWhitelist={["*"]}
             source={{ html: generateHtmlForm() }}
             style={{ flex: 1 }}
           />
-          <TouchableOpacity style={styles.createButton} onPress={() => {
-            setRapporte(prev => [...prev, `Rapport vom ${new Date().toLocaleDateString('de-DE')}`]);
-            setPreviewVisible(false);
-            Alert.alert("Rapport gespeichert", "Der Rapport wurde gespeichert.");
-          }}>
-            <Text style={styles.createButtonText}>Rapport einreichen</Text>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => {
+              setRapporte(prev => [...prev, `Rapport vom ${new Date().toLocaleDateString('de-DE')}`]);
+              setPreviewVisible(false);
+              Alert.alert("Rapport gespeichert", "Der Rapport wurde gespeichert.");
+            }}
+          >
+            <Text style={styles.primaryButtonText}>Rapport einreichen</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.createButton} onPress={() => setPreviewVisible(false)}>
-            <Text style={styles.createButtonText}>Löschen</Text>
+          <TouchableOpacity style={styles.primaryButton} onPress={() => setPreviewVisible(false)}>
+            <Text style={styles.primaryButtonText}>Löschen</Text>
           </TouchableOpacity>
-        </SafeAreaView>
+        </AppContainer>
       </Modal>
-    </SafeAreaView>
+    </AppContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-  buttonGroup: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 },
-  button: { backgroundColor: '#007AFF', padding: 12, borderRadius: 8 },
-  buttonText: { color: '#fff', fontWeight: '600' },
+  title: {
+    fontSize: theme.typography.fontSize.title,
+    fontWeight: 'bold',
+    marginBottom: theme.spacing.md,
+    textAlign: 'center',
+    color: theme.colors.text
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: theme.spacing.md
+  },
+  button: {
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md
+  },
+  buttonText: {
+    color: theme.colors.white,
+    fontWeight: '600'
+  },
   listView: { flex: 1 },
   searchInput: {
-    borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 5, marginBottom: 10
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.sm,
+    marginBottom: theme.spacing.sm
   },
   rapportItem: {
-    padding: 10, borderBottomWidth: 1, borderColor: '#eee'
+    padding: theme.spacing.sm,
+    borderBottomWidth: 1,
+    borderColor: '#eee'
   },
-  modalContent: { flex: 1, alignItems: 'center', padding: 20, justifyContent: 'space-between' },
-  modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
-  close: { marginTop: 10, color: 'red', fontSize: 16 },
-  createButton: {
-    backgroundColor: '#007AFF',
-    padding: 16,
-    borderRadius: 10,
-    width: '90%',
+  modalTitle: {
+    fontSize: theme.typography.fontSize.large,
+    fontWeight: 'bold',
+    marginBottom: theme.spacing.md
+  },
+  close: {
+    marginTop: theme.spacing.sm,
+    color: 'red',
+    fontSize: theme.typography.fontSize.normal
+  },
+  primaryButton: {
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
     alignItems: 'center',
-    marginBottom: 20
+    marginVertical: theme.spacing.sm
   },
-  createButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 }
+  primaryButtonText: {
+    color: theme.colors.white,
+    fontWeight: 'bold',
+    fontSize: theme.typography.fontSize.normal
+  }
 });
 
 export default RapportScreen;
