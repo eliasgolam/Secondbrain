@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   logo: {
-    width: 400, // 250% größer als 160
+    width: 800, // 250% größer als 160
     height: 150,
   },
   title: {

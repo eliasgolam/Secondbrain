@@ -1,238 +1,244 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  Modal,
-  FlatList,
   TextInput,
-  Alert,
-  ScrollView
+  ScrollView,
+  TouchableOpacity
 } from 'react-native';
-import * as Speech from 'expo-speech';
-import { WebView } from 'react-native-webview';
-import AnimatedListeningCircle from '../components/AnimatedListeningCircle';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AppContainer from '../components/AppContainer';
 import theme from '../theme';
+import { getRapporte } from '../storage/RapportStorage';
+import LottieView from 'lottie-react-native';
 
 const RapportScreen = () => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [previewVisible, setPreviewVisible] = useState(false);
+  const navigation = useNavigation();
   const [viewList, setViewList] = useState(false);
   const [rapporte, setRapporte] = useState([]);
   const [search, setSearch] = useState('');
-  const currentIndex = useRef(0);
-  const isSpeakingRef = useRef(false);
 
-  const fragen = [
-    'Nenne bitte das heutige Datum und deinen Namen.',
-    'Wo hast du gearbeitet, und wie war das Wetter?',
-    'Wann hast du angefangen und aufgehört, inklusive Pausen?',
-    'Was genau hast du heute gemacht und wo?',
-    'Gab es Fortschritte oder Wiederholungen von Arbeiten?',
-    'Wer war heute im Team oder auf der Baustelle anwesend?',
-    'Wurden Fremdfirmen eingesetzt oder besondere Zeiten erfasst?',
-    'Welches Material und welche Maschinen kamen zum Einsatz?',
-    'Gab es Lieferungen, Defekte oder Engpässe?',
-    'Gab es Probleme, Sicherheitsvorfälle oder Abweichungen?',
-    'Was sollte morgen vorbereitet werden oder mitgenommen?',
-    'Gibt es sonstige Notizen oder Hinweise für das Team?',
-    'Möchtest du Fotos oder Dokumente zu diesem Rapport erfassen?'
-  ];
-
-  const sprecheFragen = () => {
-    if (!isSpeakingRef.current) return;
-    if (currentIndex.current < fragen.length) {
-      Speech.speak(fragen[currentIndex.current], {
-        language: 'de-DE',
-        voice: 'com.apple.ttsbundle.Markus-compact',
-        rate: 0.95,
-        pitch: 1.0,
-        onDone: () => {
-          setTimeout(() => {
-            currentIndex.current++;
-            sprecheFragen();
-          }, 1500);
-        }
-      });
-    } else {
-      currentIndex.current = 0;
-    }
-  };
-
-  const handleOpenModal = () => {
-    currentIndex.current = 0;
-    isSpeakingRef.current = true;
-    setModalVisible(true);
-    sprecheFragen();
-  };
-
-  const handleCloseModal = () => {
-    isSpeakingRef.current = false;
-    Speech.stop();
-    currentIndex.current = 0;
-    setModalVisible(false);
-  };
-
-  const handleOpenPreview = () => {
-    isSpeakingRef.current = false;
-    Speech.stop();
-    currentIndex.current = 0;
-    setModalVisible(false);
-    setPreviewVisible(true);
-  };
-
-  const generateHtmlForm = () => {
-    const today = new Date().toLocaleDateString('de-DE');
-    let html = `<html><head><style>
-      body { font-family: Arial; padding: 20px; }
-      h1 { text-align: center; }
-      .block { margin-bottom: 20px; }
-      label { font-weight: bold; display: block; margin-bottom: 5px; }
-      textarea {
-        width: 100%; height: 60px;
-        font-family: inherit; font-size: 14px;
-        border: 1px solid #ccc; border-radius: 4px;
-        padding: 8px;
+  useFocusEffect(
+    useCallback(() => {
+      if (viewList) {
+        const load = async () => {
+          const result = await getRapporte();
+          setRapporte(result);
+        };
+        load();
       }
-      </style></head><body>`;
-    html += `<h1>Rapport vom ${today}</h1>`;
-    fragen.forEach((frage, index) => {
-      html += `<div class="block"><label>${index + 1}. ${frage}</label><textarea placeholder="Antwort hier eingeben..."></textarea></div>`;
-    });
-    html += `</body></html>`;
-    return html;
-  };
+    }, [viewList])
+  );
+
+  const filteredRapporte = rapporte.filter(r => {
+    const text = `${r.projekt} ${r.mitarbeiter} ${r.datum}`.toLowerCase();
+    return text.includes(search.toLowerCase());
+  });
+
+  const totalCount = rapporte.length;
+  const currentWeekCount = rapporte.filter(r => {
+    
+    const datum = new Date(r.datum);
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay() + 1);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    return datum >= startOfWeek && datum <= endOfWeek;
+  }).length;
+  const lastRapport = rapporte[rapporte.length - 1];
+const lastRapportDate = lastRapport
+  ? new Date(lastRapport.datum).toLocaleDateString('de-DE')
+  : 'Noch kein Rapport vorhanden';
+const lastRapportOrt = lastRapport?.projekt || '—';
+const lastRapportTeam = lastRapport?.teamgroesse || '—';
+
 
   return (
-    <AppContainer>
-      <Text style={styles.title}>Rapporte</Text>
-
-      <View style={styles.buttonGroup}>
-        <TouchableOpacity style={styles.button} onPress={() => setViewList(true)}>
-          <Text style={styles.buttonText}>Rapporte ansehen</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleOpenModal}>
-          <Text style={styles.buttonText}>Rapport erstellen</Text>
-        </TouchableOpacity>
+    <AppContainer style={styles.background}>
+      <View style={styles.header}>
+        <Text style={styles.title}>📄 Rapporte</Text>
+        <Text style={styles.subtitle}>Tagesberichte & Dokumentation deiner Baustellen</Text>
       </View>
+
+      <View style={styles.statsContainer}>
+        <Text style={styles.statsTitle}>Gespeicherte Rapporte</Text>
+        <View style={styles.statsRow}>
+          <View style={styles.statBox}>
+            <Text style={styles.statLabel}>Gesamt</Text>
+            <Text style={styles.statValue}>{totalCount}</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statLabel}>Diese Woche</Text>
+            <Text style={styles.statValue}>{currentWeekCount}</Text>
+          </View>
+        </View>
+      </View>
+
+      {!viewList && (
+        <View style={styles.actionsZone}>
+          <TouchableOpacity style={styles.card} onPress={() => setViewList(true)}>
+            <Text style={styles.cardTitle}>📁 Rapporte ansehen</Text>
+            <Text style={styles.cardDesc}>➡ Liste aller bisherigen Rapporte</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('RapportWizard')}>
+            <Text style={styles.cardTitle}>➕ Rapport erstellen</Text>
+            <Text style={styles.cardDesc}>➡ Starte mit Sprache oder Formular</Text>
+          </TouchableOpacity>
+
+    <View style={styles.summaryCard}>
+  <Text>🗓️ Letzter Rapport: {lastRapportDate}</Text>
+  <Text>📍 Ort: {lastRapportOrt}  |  👷 {lastRapportTeam} Personen</Text>
+</View>
+
+
+          <View style={styles.lottieBox}>
+            <LottieView
+              source={require('../assets/Rapport.json')}
+              autoPlay
+              loop
+              style={styles.lottie}
+            />
+          </View>
+        </View>
+      )}
 
       {viewList && (
         <ScrollView style={styles.listView}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Suche nach Rapport"
+            placeholder="🔍 Suche nach Rapport"
             value={search}
             onChangeText={setSearch}
           />
-          {rapporte
-            .filter(r => r.toLowerCase().includes(search.toLowerCase()))
-            .map((item, index) => (
-              <TouchableOpacity key={index} onPress={handleOpenPreview}>
-                <Text style={styles.rapportItem}>{item}</Text>
-              </TouchableOpacity>
-            ))}
+          {filteredRapporte.map((r, index) => (
+            <View key={index} style={styles.rapportItem}>
+              <Text>📅 {new Date(r.datum).toLocaleDateString('de-DE')}</Text>
+              <Text>🧱 {r.projekt}</Text>
+              <Text>👷 {r.mitarbeiter}</Text>
+            </View>
+          ))}
         </ScrollView>
       )}
-
-      <Modal visible={modalVisible} animationType="slide">
-        <AppContainer>
-          <Text style={styles.modalTitle}>Rapport per Spracheingabe</Text>
-          <TouchableOpacity onPress={sprecheFragen}>
-            <AnimatedListeningCircle />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.primaryButton} onPress={handleOpenPreview}>
-            <Text style={styles.primaryButtonText}>Rapport erfassen</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleCloseModal}>
-            <Text style={styles.close}>Abbrechen</Text>
-          </TouchableOpacity>
-        </AppContainer>
-      </Modal>
-
-      <Modal visible={previewVisible} animationType="fade">
-        <AppContainer>
-          <WebView
-            originWhitelist={["*"]}
-            source={{ html: generateHtmlForm() }}
-            style={{ flex: 1 }}
-          />
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() => {
-              setRapporte(prev => [...prev, `Rapport vom ${new Date().toLocaleDateString('de-DE')}`]);
-              setPreviewVisible(false);
-              Alert.alert("Rapport gespeichert", "Der Rapport wurde gespeichert.");
-            }}
-          >
-            <Text style={styles.primaryButtonText}>Rapport einreichen</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.primaryButton} onPress={() => setPreviewVisible(false)}>
-            <Text style={styles.primaryButtonText}>Löschen</Text>
-          </TouchableOpacity>
-        </AppContainer>
-      </Modal>
     </AppContainer>
   );
 };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    backgroundColor: theme.colors.backgroundLight || '#f9f9f9',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
+  },
   title: {
     fontSize: theme.typography.fontSize.title,
     fontWeight: 'bold',
-    marginBottom: theme.spacing.md,
-    textAlign: 'center',
-    color: theme.colors.text
+    color: theme.colors.text,
   },
-  buttonGroup: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  subtitle: {
+    fontSize: 14,
+    color: 'rgba(0,0,0,0.6)',
+    marginTop: 8,
+  },
+  statsContainer: {
+    backgroundColor: '#f0f0f5',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    marginHorizontal: theme.spacing.md,
     marginBottom: theme.spacing.md
   },
-  button: {
-    backgroundColor: theme.colors.primary,
+  statsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333'
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  statBox: {
+    flex: 1,
+    backgroundColor: '#fff',
     padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md
+    marginHorizontal: 4,
+    borderRadius: theme.borderRadius.sm,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+    elevation: 2
   },
-  buttonText: {
-    color: theme.colors.white,
-    fontWeight: '600'
+  statLabel: {
+    fontSize: 13,
+    color: '#777',
+    marginBottom: 4
   },
-  listView: { flex: 1 },
+  statValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.primary
+  },
+  actionsZone: {
+    paddingHorizontal: theme.spacing.md,
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    marginVertical: theme.spacing.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  cardDesc: {
+    fontSize: 13,
+    color: '#555',
+    marginTop: 4,
+  },
+  summaryCard: {
+    marginTop: theme.spacing.lg,
+    padding: theme.spacing.md,
+    backgroundColor: '#f1f1f1',
+    borderRadius: theme.borderRadius.md,
+  },
+  listView: {
+    marginTop: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+  },
   searchInput: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: theme.spacing.sm,
     borderRadius: theme.borderRadius.sm,
-    marginBottom: theme.spacing.sm
+    marginBottom: theme.spacing.sm,
   },
   rapportItem: {
     padding: theme.spacing.sm,
     borderBottomWidth: 1,
-    borderColor: '#eee'
+    borderColor: '#eee',
   },
-  modalTitle: {
-    fontSize: theme.typography.fontSize.large,
-    fontWeight: 'bold',
-    marginBottom: theme.spacing.md
-  },
-  close: {
-    marginTop: theme.spacing.sm,
-    color: 'red',
-    fontSize: theme.typography.fontSize.normal
-  },
-  primaryButton: {
-    backgroundColor: theme.colors.primary,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
+  lottieBox: {
     alignItems: 'center',
-    marginVertical: theme.spacing.sm
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.xl
   },
-  primaryButtonText: {
-    color: theme.colors.white,
-    fontWeight: 'bold',
-    fontSize: theme.typography.fontSize.normal
+  lottie: {
+    width: 220,
+    height: 220
   }
 });
 

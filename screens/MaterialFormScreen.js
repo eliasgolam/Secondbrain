@@ -3,13 +3,13 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   Alert
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import AppContainer from '../components/AppContainer';
+import PrimaryButton from '../components/PrimaryButton';
 import theme from '../theme';
 
 const MaterialFormScreen = ({ navigation }) => {
@@ -69,10 +69,10 @@ const MaterialFormScreen = ({ navigation }) => {
         />
       </View>
 
-      <TouchableOpacity style={styles.qrButton} onPress={() => setQrVisible(true)}>
-        <MaterialCommunityIcons name="qrcode" size={20} color={theme.colors.white} />
-        <Text style={styles.qrButtonText}>QR-Code erstellen</Text>
-      </TouchableOpacity>
+      <PrimaryButton
+        title="📷 QR-Code erstellen"
+        onPress={() => setQrVisible(true)}
+      />
 
       {qrVisible && (
         <View style={styles.qrContainer}>
@@ -80,9 +80,10 @@ const MaterialFormScreen = ({ navigation }) => {
         </View>
       )}
 
-      <TouchableOpacity style={styles.saveButton} onPress={handleSpeichern}>
-        <Text style={styles.saveButtonText}>✅ Speichern</Text>
-      </TouchableOpacity>
+      <PrimaryButton
+        title="✅ Speichern"
+        onPress={handleSpeichern}
+      />
     </AppContainer>
   );
 };
@@ -109,34 +110,9 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.sm
   },
-  qrButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.primary,
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-    marginTop: theme.spacing.sm
-  },
-  qrButtonText: {
-    color: theme.colors.white,
-    fontWeight: '600',
-    marginLeft: theme.spacing.sm
-  },
   qrContainer: {
     alignItems: 'center',
     marginVertical: theme.spacing.lg
-  },
-  saveButton: {
-    backgroundColor: '#28a745',
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    alignItems: 'center',
-    marginTop: theme.spacing.md
-  },
-  saveButtonText: {
-    color: theme.colors.white,
-    fontWeight: 'bold',
-    fontSize: theme.typography.fontSize.large
   }
 });
 

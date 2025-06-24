@@ -1,86 +1,152 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
-  StyleSheet
+  StyleSheet,
+  ScrollView
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AppContainer from '../components/AppContainer';
+import PrimaryButton from '../components/PrimaryButton';
+import LottieView from 'lottie-react-native';
 import theme from '../theme';
 
 const MaterialScreen = () => {
   const navigation = useNavigation();
 
+  // Beispielhafte Material-Zustände (später dynamisch laden)
+  const [materialien] = useState([]); // Liste von Materialien
+  const [knapp] = useState([]); // Liste von knappen Materialien
+
+  let statusText = '';
+  let statusType = '';
+
+  if (materialien.length === 0) {
+    statusText = '❕ Noch keine Materialien im System\nLege dein erstes Material über die Schaltflächen unten an.';
+    statusType = 'leer';
+  } else if (knapp.length === 0) {
+    statusText = '✅ Alle Lagerbestände sind vollständig\nDu hast alle Materialien ausreichend erfasst und verfügbar.';
+    statusType = 'ok';
+  } else {
+    statusText = '⚠️ Einige Materialien sind knapp\nÜberprüfe die Materialliste und plane rechtzeitig Nachschub.';
+    statusType = 'warnung';
+  }
+
   return (
     <AppContainer>
-      <Text style={styles.title}>Materialverwaltung</Text>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>🧰 Materialverwaltung</Text>
+          <Text style={styles.subtitle}>Verwalte Verbrauch & Verfügbarkeit</Text>
+        </View>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('MaterialForm')}
-      >
-        <MaterialCommunityIcons name="plus-box" size={20} color={theme.colors.white} />
-        <Text style={styles.buttonText}>Material erfassen</Text>
-      </TouchableOpacity>
+        <View style={styles.statusBox}>
+          <Text style={[styles.statusText, styles[`status_${statusType}`]]}>{statusText}</Text>
+        </View>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('MaterialList')}
-      >
-        <MaterialCommunityIcons name="clipboard-list" size={20} color={theme.colors.white} />
-        <Text style={styles.buttonText}>Materialliste</Text>
-      </TouchableOpacity>
+        <View style={styles.buttonGroup}>
+          <PrimaryButton
+            title="📦 Material erfassen"
+            onPress={() => navigation.navigate('MaterialForm')}
+          />
+          <PrimaryButton
+            title="📋 Materialliste"
+            onPress={() => navigation.navigate('MaterialList')}
+          />
+          <PrimaryButton
+            title="📷 Material scannen"
+            onPress={() => navigation.navigate('MaterialScanner')}
+          />
+        </View>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('MaterialScanner')}
-      >
-        <MaterialCommunityIcons name="qrcode-scan" size={20} color={theme.colors.white} />
-        <Text style={styles.buttonText}>Material scannen</Text>
-      </TouchableOpacity>
+        <View style={styles.lottieWrapper}>
+          <LottieView
+            source={require('../assets/Material.json')}
+            autoPlay
+            loop
+            style={styles.lottie}
+          />
+        </View>
 
-      <View style={styles.hinweisContainer}>
-        <Text style={styles.hinweisText}>⚠️ Erinnerung: Handschuhe fehlen</Text>
-        <Text style={styles.hinweisText}>🟥 Warnung: Farbeimer leer</Text>
-      </View>
+        <View style={styles.hinweisBox}>
+          <Text style={styles.hinweisTitle}>📌 Hinweis:</Text>
+          <Text style={styles.hinweisText}>
+            Kennzeichne deine Materialien mit QR-Codes, um
+            den Bestand jederzeit im Blick zu behalten.
+          </Text>
+        </View>
+      </ScrollView>
     </AppContainer>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    padding: theme.spacing.md,
+    paddingBottom: theme.spacing.xl
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: theme.spacing.md
+  },
   title: {
     fontSize: theme.typography.fontSize.title,
     fontWeight: 'bold',
-    marginBottom: theme.spacing.lg,
-    textAlign: 'center',
     color: theme.colors.text
   },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.primary,
+  subtitle: {
+    fontSize: 14,
+    color: 'rgba(0,0,0,0.6)',
+    marginTop: 4,
+    textAlign: 'center'
+  },
+  statusBox: {
+    backgroundColor: '#f0f0f5',
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
+    marginTop: theme.spacing.lg,
     marginBottom: theme.spacing.md
   },
-  buttonText: {
-    color: theme.colors.white,
-    fontWeight: '600',
-    fontSize: theme.typography.fontSize.normal,
-    marginLeft: theme.spacing.sm
+  statusText: {
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20
   },
-  hinweisContainer: {
-    marginTop: 'auto',
-    backgroundColor: '#f5f5f5',
+  status_warnung: {
+    color: '#c00'
+  },
+  status_ok: {
+    color: 'green'
+  },
+  status_leer: {
+    color: '#555'
+  },
+  buttonGroup: {
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.lg
+  },
+  lottieWrapper: {
+    alignItems: 'center',
+    marginVertical: theme.spacing.lg
+  },
+  lottie: {
+    width: 220,
+    height: 220
+  },
+  hinweisBox: {
+    backgroundColor: '#fdfdfd',
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: '#ddd'
+  },
+  hinweisTitle: {
+    fontWeight: 'bold',
+    marginBottom: 4
   },
   hinweisText: {
-    color: '#d00',
-    fontSize: theme.typography.fontSize.small,
-    marginBottom: 4
+    fontSize: 13,
+    color: '#555'
   }
 });
 

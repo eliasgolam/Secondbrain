@@ -1,21 +1,27 @@
-// theme.js
-
 const theme = {
   colors: {
-    background: '#F2F4F7',        // Sanftes hellgrau (professioneller als #fff)
-    surface: '#FFFFFF',           // Für Cards, Inputs etc.
-    primary: '#2563EB',           // Ein kräftiges, aber stilvolles Blau
-    primaryLight: '#E0E7FF',      // Für flache Buttons, Hover-Effekt
-    text: '#1F2937',              // Neutral-schwarz für gute Lesbarkeit
-    secondary: '#64748B',         // Graublau – für Labels, Metadaten
-    border: '#E5E7EB',            // Dezente Rahmenfarbe
+    // Grundstruktur
+    background: '#F9FAFB',
+    surface: '#FFFFFF',
+    border: '#D1D5DB',
+
+    // Text
+    text: '#1F2937',
+    secondary: '#64748B',
+
+    // Primär/Akzentfarben
+    primary: '#4B6EF5',
+    primaryLight: '#8FA8FF',
+    success: '#28A745',
+    danger: '#D32F2F',
+
+    // Buttons
+    buttonBackground: '#4B6EF5',
+    buttonHover: '#3B5ADC',
+
+    // Utility
     white: '#FFFFFF',
     transparent: 'transparent',
-    error: '#DC2626',             // Für Fehlermeldungen
-    success: '#16A34A',           // Für Bestätigungen
-
-    buttonBackground: '#2563EB',  // Primärfarbe für Buttons
-    buttonHover: '#1E40AF',       // Dunkler beim gedrückt halten
   },
 
   spacing: {
@@ -23,20 +29,31 @@ const theme = {
     sm: 8,
     md: 16,
     lg: 24,
-    xl: 32
+    xl: 32,
+    xxl: 48
   },
 
   borderRadius: {
     sm: 6,
     md: 12,
     lg: 20,
-    xl: 30
+    xl: 32
+  },
+
+  // ➕ Alias für radius, damit theme.radius.lg auch funktioniert
+  radius: {
+    sm: 6,
+    md: 12,
+    lg: 20,
+    xl: 32
   },
 
   typography: {
     fontSize: {
-      small: 12,
-      normal: 16,
+      xsmall: 11,
+      small: 13,
+      normal: 15,
+      medium: 17,
       large: 20,
       title: 24
     },

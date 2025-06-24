@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   FlatList,
   Modal,
-  ScrollView
+  ScrollView,
+  TouchableOpacity
 } from 'react-native';
-import { MaterialIcons, AntDesign } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
+import LottieView from 'lottie-react-native';
 import AppContainer from '../components/AppContainer';
+import PrimaryButton from '../components/PrimaryButton';
 import theme from '../theme';
 import { StyleSheet } from 'react-native';
 
@@ -23,7 +25,8 @@ const initialForm = {
   titel: '',
   beschreibung: '',
   nachfolgetermin: '',
-  datum: ''
+  datum: '',
+  ansprechpartner: ''
 };
 
 const tabs = [
@@ -45,6 +48,16 @@ const KundendossierScreen = () => {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [dokumente, setDokumente] = useState([]);
+  const [weekCount, setWeekCount] = useState(0);
+  const [showAddIcon, setShowAddIcon] = useState(false);
+
+  useEffect(() => {
+    setShowAddIcon(kunden.length > 0);
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const count = kunden.filter(k => new Date(k.datum) >= startOfWeek).length;
+    setWeekCount(count);
+  }, [kunden]);
 
   const handleSave = () => {
     setKunden([...kunden, formData]);
@@ -69,8 +82,43 @@ const KundendossierScreen = () => {
     }
   };
 
+  const renderKundeCard = ({ item }) => (
+    <View style={styles.kundeCard}>
+      <Text style={styles.kundeName}>👤 {item.vorname} {item.nachname}</Text>
+      <Text>📍 {item.ort || '—'}   |   📞 {item.telefon || '—'}</Text>
+      <Text>👥 Ansprechpartner: {item.ansprechpartner || '—'}</Text>
+      <TouchableOpacity
+        onPress={() => {
+          setSelectedKunde(item);
+          setViewDossier(true);
+          setActiveTab(tabs[0]);
+        }}
+      >
+        <Text style={styles.dossierLink}>[ Dossier anzeigen ➥ ]</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderEmptyState = () => (
+    <View style={styles.emptyStateCard}>
+      <Text style={styles.emptyIcon}>🗂️</Text>
+      <Text style={styles.emptyHeadline}>Kein Kunde vorhanden</Text>
+      <Text style={styles.emptyText}>
+        Klicke auf den Button, um deinen ersten Kunden zu erfassen.
+      </Text>
+      <PrimaryButton title="✍️ Kunden hinzufügen" onPress={() => setModalVisible(true)} />
+      <LottieView
+        source={require('../assets/Kunden.json')}
+        autoPlay
+        loop
+        style={styles.lottie}
+      />
+    </View>
+  );
+
   const renderTabContent = () => {
     if (!selectedKunde) return null;
+
     const renderInput = (label, value) => (
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>{label}</Text>
@@ -78,12 +126,10 @@ const KundendossierScreen = () => {
       </View>
     );
 
-    const renderEmptyState = (message, actionLabel, onAction) => (
+    const renderEmpty = (msg, label, handler) => (
       <View style={styles.emptyState}>
-        <Text>{message}</Text>
-        <TouchableOpacity onPress={onAction} style={styles.actionButton}>
-          <Text style={styles.actionText}>{actionLabel}</Text>
-        </TouchableOpacity>
+        <Text>{msg}</Text>
+        <PrimaryButton title={label} onPress={handler} />
       </View>
     );
 
@@ -108,19 +154,17 @@ const KundendossierScreen = () => {
           </View>
         );
       case 'Rechnungen':
-        return renderEmptyState('Keine Rechnungen vorhanden.', 'Rechnung erstellen', () => {});
+        return renderEmpty('Keine Rechnungen vorhanden.', 'Rechnung erstellen', () => {});
       case 'Material':
-        return renderEmptyState('Kein Material erfasst.', 'Material hinzufügen', () => {});
+        return renderEmpty('Kein Material erfasst.', 'Material hinzufügen', () => {});
       case 'Termine':
-        return renderEmptyState('Keine Termine vorhanden.', 'Termin eintragen', () => {});
+        return renderEmpty('Keine Termine vorhanden.', 'Termin eintragen', () => {});
       case 'Rapporte':
-        return renderEmptyState('Keine Rapporte gefunden.', 'Rapport hinzufügen', () => {});
+        return renderEmpty('Keine Rapporte gefunden.', 'Rapport hinzufügen', () => {});
       case 'Dokumente':
         return (
           <View>
-            <TouchableOpacity onPress={handleDocumentUpload} style={styles.uploadButton}>
-              <Text>📎 Dokument hinzufügen</Text>
-            </TouchableOpacity>
+            <PrimaryButton title="📎 Dokument hinzufügen" onPress={handleDocumentUpload} />
             {dokumente.length === 0 ? (
               <Text style={{ marginTop: 10 }}>Keine Dokumente vorhanden.</Text>
             ) : (
@@ -136,38 +180,50 @@ const KundendossierScreen = () => {
   return (
     <AppContainer>
       <View style={styles.header}>
-        <Text style={styles.title}>Kunden</Text>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <AntDesign name="pluscircleo" size={24} color={theme.colors.primary} />
-        </TouchableOpacity>
-      </View>
-
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Suche Kunden"
-        value={search}
-        onChangeText={setSearch}
-      />
-
-      <FlatList
-        data={filteredKunden}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.kundeItem}
-            onPress={() => {
-              setSelectedKunde(item);
-              setViewDossier(true);
-              setActiveTab(tabs[0]);
-            }}
-          >
-            <Text>{item.vorname} {item.nachname}</Text>
-            <MaterialIcons name="edit" size={20} color="gray" />
+        <View>
+          <Text style={styles.title}>👤 Kundenübersicht</Text>
+          <Text style={styles.subtitle}>Verwalte Kunden & Ansprechpartner</Text>
+        </View>
+        {showAddIcon && (
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <AntDesign name="pluscircleo" size={26} color={theme.colors.primary} />
           </TouchableOpacity>
         )}
-      />
+      </View>
 
-      {/* MODAL: Neuer Kunde */}
+      <View style={styles.searchBox}>
+        <Text style={styles.searchIcon}>🔍</Text>
+        <TextInput
+          style={styles.searchInputInner}
+          placeholder="Suche Kunden …"
+          value={search}
+          onChangeText={setSearch}
+        />
+      </View>
+
+    <View style={styles.statsContainer}>
+  <Text style={styles.statsTitle}>📊 Kundenstatistik</Text>
+  <View style={styles.statsRow}>
+    <View style={styles.statBox}>
+      <Text style={styles.statLabel}>Gesamt</Text>
+      <Text style={styles.statValue}> {kunden.length}</Text>
+    </View>
+    <View style={styles.statBox}>
+      <Text style={styles.statLabel}>Diese Woche</Text>
+      <Text style={styles.statValue}> {weekCount}</Text>
+    </View>
+  </View>
+</View>
+
+
+      {kunden.length === 0 ? renderEmptyState() : (
+        <FlatList
+          data={filteredKunden}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderKundeCard}
+        />
+      )}
+
       <Modal visible={modalVisible} animationType="slide">
         <AppContainer>
           <ScrollView contentContainerStyle={styles.modalContent}>
@@ -181,17 +237,11 @@ const KundendossierScreen = () => {
                 style={styles.input}
               />
             ))}
-            <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-              <Text style={styles.saveText}>Speichern</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setModalVisible(false)}>
-              <Text style={styles.close}>Abbrechen</Text>
-            </TouchableOpacity>
+            <PrimaryButton title="Speichern" onPress={handleSave} />
           </ScrollView>
         </AppContainer>
       </Modal>
 
-      {/* MODAL: Kundendossier */}
       <Modal visible={viewDossier} animationType="slide">
         <AppContainer>
           <Text style={styles.modalTitle}>Kundendossier</Text>
@@ -224,22 +274,74 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: theme.colors.text
   },
-  searchInput: {
-    borderWidth: 1,
-    borderColor: theme.colors.primary,
+  subtitle: {
+    fontSize: 14,
+    color: 'rgba(0,0,0,0.6)'
+  },
+  infoCard: {
+    backgroundColor: '#f3f3f3',
     padding: theme.spacing.sm,
     borderRadius: theme.borderRadius.md,
+    marginVertical: theme.spacing.md
+  },
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.md,
+    paddingHorizontal: theme.spacing.sm,
     marginBottom: theme.spacing.sm
   },
-  kundeItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  searchIcon: {
+    marginRight: 6
+  },
+  searchInputInner: {
+    flex: 1,
+    paddingVertical: 6
+  },
+  kundeCard: {
+    backgroundColor: '#fff',
     padding: theme.spacing.sm,
-    marginVertical: 4,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.white
+    marginBottom: 8,
+    borderRadius: theme.borderRadius.md,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 4,
+    elevation: 2
+  },
+  kundeName: {
+    fontWeight: 'bold',
+    fontSize: 16
+  },
+  dossierLink: {
+    color: theme.colors.primary,
+    marginTop: 6
+  },
+  emptyStateCard: {
+    marginTop: theme.spacing.md,
+    padding: theme.spacing.lg,
+    backgroundColor: '#f5f5f5',
+    borderRadius: theme.borderRadius.lg,
+    alignItems: 'center',
+    gap: theme.spacing.md
+  },
+  emptyIcon: {
+    fontSize: 36
+  },
+  emptyHeadline: {
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#666'
+  },
+  lottie: {
+    width: 200,
+    height: 200,
+    marginTop: theme.spacing.md
   },
   modalContent: { padding: theme.spacing.md },
   modalTitle: {
@@ -254,13 +356,6 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
     borderRadius: theme.borderRadius.md
   },
-  saveButton: {
-    backgroundColor: theme.colors.primary,
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-    marginTop: theme.spacing.sm
-  },
-  saveText: { color: 'white', textAlign: 'center', fontWeight: 'bold' },
   close: { color: 'red', textAlign: 'center', marginTop: theme.spacing.md },
   tabBar: { flexDirection: 'row', marginVertical: theme.spacing.sm },
   tab: { padding: 10, marginRight: 10, color: '#555' },
@@ -270,26 +365,50 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderColor: theme.colors.primary
   },
-  uploadButton: {
-    marginTop: theme.spacing.md,
-    padding: theme.spacing.sm,
-    backgroundColor: '#eee',
-    borderRadius: theme.borderRadius.sm,
-    alignItems: 'center'
-  },
   fieldContainer: { marginBottom: theme.spacing.sm },
   label: { fontWeight: '600', marginBottom: 4, color: theme.colors.text },
-  emptyState: {
-    alignItems: 'center',
-    marginTop: theme.spacing.md
+  emptyState: { alignItems: 'center', marginTop: theme.spacing.md }
+    ,
+  statsContainer: {
+    backgroundColor: '#f0f0f5',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    marginVertical: theme.spacing.md
   },
-  actionButton: {
-    marginTop: theme.spacing.sm,
+  statsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333'
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  statBox: {
+    flex: 1,
+    backgroundColor: '#fff',
     padding: theme.spacing.sm,
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.sm
+    marginHorizontal: 4,
+    borderRadius: theme.borderRadius.sm,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+    elevation: 2
   },
-  actionText: { color: 'white', fontWeight: 'bold' }
+  statLabel: {
+    fontSize: 13,
+    color: '#777',
+    marginBottom: 4
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.primary
+  }
+
 });
 
 export default KundendossierScreen;
