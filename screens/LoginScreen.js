@@ -14,17 +14,18 @@ import AppContainer from '../components/AppContainer';
 import PrimaryButton from '../components/PrimaryButton';
 import theme from '../theme';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen({ navigation, onLoginSuccess }) {
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
 const handleLogin = () => {
   if (username === 'GPSAdmin' && password === 'GPS2025') {
-    navigation.replace('SuperAdmin');
+    onLoginSuccess({ id: '001', role: 'superadmin' });
   } else if (username === 'admin' && password === 'admin123') {
-    navigation.replace('AdminPanel');
+    onLoginSuccess({ id: '002', role: 'admin' });
   } else if (username === 'test' && password === 'test') {
-    navigation.replace('AppTabs');
+    onLoginSuccess({ id: '003', role: 'user' });
   } else {
     alert('Zugangsdaten ungültig');
   }

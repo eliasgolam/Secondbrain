@@ -1,34 +1,28 @@
-
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import AppContainer from '../components/AppContainer';
+import DashboardOverview from '../components/DashboardOverview';
+import AdminNavigation from '../components/AdminNavigation';
 import theme from '../theme';
 
 export default function AdminPanelScreen() {
   return (
     <AppContainer>
-      <View style={styles.centered}>
-        <Text style={styles.title}>🔧 Admin Panel</Text>
-        <Text style={styles.subtitle}>Verwalte Projekte, Nutzer und Auswertungen</Text>
-      </View>
+      <ScrollView>
+        <Text style={styles.header}>Admin Dashboard</Text>
+        <DashboardOverview />
+        <AdminNavigation />
+      </ScrollView>
     </AppContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  title: {
+  header: {
     fontSize: theme.typography.fontSize.title,
     fontWeight: 'bold',
-    color: theme.colors.primary,
-    marginBottom: theme.spacing.sm
-  },
-  subtitle: {
-    fontSize: theme.typography.fontSize.normal,
-    color: theme.colors.text
+    textAlign: 'center',
+    marginVertical: theme.spacing.md,
+    color: theme.colors.primary
   }
 });
