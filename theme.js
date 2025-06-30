@@ -1,23 +1,23 @@
 const theme = {
   colors: {
     // Grundstruktur
-    background: '#F9FAFB',
-    surface: '#FFFFFF',
-    border: '#D1D5DB',
+    background: '#F5F7FA',       // Hellgrauer Hintergrund
+    surface: '#FFFFFF',          // Weiß für Karten und Boxen
+    border: '#D1D5DB',           // Dezente Rahmenfarbe
 
     // Text
-    text: '#1F2937',
-    secondary: '#64748B',
+    text: '#1F2937',             // Dunkelgrauer Standardtext
+    secondary: '#6B7280',        // Sekundärtext (leicht heller)
 
-    // Primär/Akzentfarben
-    primary: '#4B6EF5',
-    primaryLight: '#8FA8FF',
-    success: '#28A745',
-    danger: '#D32F2F',
+    // Primär/Akzentfarben (von BauMaster)
+    primary: '#F9B000',          // BauMaster-Gelb (Call to Action)
+    primaryLight: '#FFD65A',     // Helleres Gelb für Hover
+    success: '#34A853',          // Grün für Status-Icons (z. B. Check)
+    danger: '#D93025',           // Rot für Warnungen/Fehler
 
     // Buttons
-    buttonBackground: '#4B6EF5',
-    buttonHover: '#3B5ADC',
+    buttonBackground: '#F9B000',
+    buttonHover: '#FFD65A',
 
     // Utility
     white: '#FFFFFF',
@@ -30,22 +30,22 @@ const theme = {
     md: 16,
     lg: 24,
     xl: 32,
-    xxl: 48
+    xxl: 48,
   },
 
   borderRadius: {
     sm: 6,
     md: 12,
     lg: 20,
-    xl: 32
+    xl: 32,
   },
 
-  // ➕ Alias für radius, damit theme.radius.lg auch funktioniert
+  // ➕ Alias für radius
   radius: {
     sm: 6,
     md: 12,
     lg: 20,
-    xl: 32
+    xl: 32,
   },
 
   typography: {
@@ -55,13 +55,13 @@ const theme = {
       normal: 15,
       medium: 17,
       large: 20,
-      title: 24
+      title: 24,
     },
     fontFamily: {
       regular: 'System',
-      bold: 'System'
-    }
-  }
+      bold: 'System',
+    },
+  },
 };
 
 export default theme;

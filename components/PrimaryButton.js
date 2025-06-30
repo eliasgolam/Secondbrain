@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, StyleSheet, View, Pressable, Animated } from 'react-native';
+import { Text, StyleSheet, View, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import theme from '../theme';
@@ -14,10 +14,10 @@ export default function PrimaryButton({
 }) {
   const getGradient = () => {
     const gradients = {
-      primary: ['#4B6EF5', '#6C8BFA'],
-      success: ['#28A745', '#5CD68A'],
-      danger: ['#D32F2F', '#F87171'],
-      neutral: ['#6B7280', '#9CA3AF']
+      primary: ['#F9B000', '#FFD65A'],       // Gelb – BauMaster-Style
+      success: ['#34A853', '#6DDC7D'],       // Grün – Erfolgsfeedback
+      danger: ['#D93025', '#F98080'],        // Rot – Warnungen
+      neutral: ['#6B7280', '#9CA3AF']        // Grau – Sekundär
     };
     return gradients[variant] || gradients.primary;
   };
@@ -37,7 +37,7 @@ export default function PrimaryButton({
         colors={getGradient()}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
-        style={[styles.button]}
+        style={styles.button}
       >
         <View style={styles.content}>
           {icon && (
